@@ -1,142 +1,16 @@
-import { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button";
-
-export default function AIProfitHubOS() { const [email, setEmail] = useState("");
-
-const tools = [ { name: "AI Writing Engine", desc: "Create high-converting blogs, ads, scripts, and emails.", link: "https://example-affiliate-link.com" }, { name: "AI Design Studio", desc: "Generate logos, thumbnails, and branding assets instantly.", link: "https://example-affiliate-link.com" }, { name: "AI Resume Optimizer", desc: "ATS-optimized CV builder for job success.", link: "https://example-affiliate-link.com" }, { name: "AI Study Assistant", desc: "Summarize, explain, and learn anything faster.", link: "https://example-affiliate-link.com" } ];
-
-const blogPosts = [ { title: "The Real AI Income System (2026 Blueprint)", desc: "Traffic + offer + monetization + scaling explained simply." }, { title: "Why 99% Fail Online (And How To Win)", desc: "Fixing traffic, consistency, and offer problems." }, { title: "Free AI Tools That Replace Jobs", desc: "Start freelancing with zero capital using AI tools." } ];
-
-const pricing = [ { name: "Starter", price: "$0", features: ["Free guides", "Basic tools", "Beginner roadmap"] }, { name: "Pro", price: "$9/month", features: ["Income systems", "Advanced strategies", "Traffic guide"] }, { name: "Elite", price: "$29/month", features: ["1-on-1 strategy", "Business roadmap", "Scaling system"] } ];
-
-const faq = [ { q: "Can I really make money?", a: "Yes, with traffic + execution + offers." }, { q: "Do I need experience?", a: "No, beginners can start here." }, { q: "How fast results?", a: "Depends on consistency and traffic." } ];
-
-const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
-
-return ( <div className="min-h-screen bg-gray-950 text-white">
-
-{/* HERO + FUNNEL */}
-  <div className="text-center py-24 px-6">
-    <h1 className="text-5xl font-bold">AI Profit OS</h1>
-    <p className="text-gray-400 max-w-2xl mx-auto mt-4">
-      Complete system: AI tools + freelancing + affiliate income + SaaS scaling + viral traffic system.
-    </p>
-    <Button className="mt-6" onClick={() => document.getElementById("funnel")?.scrollIntoView({behavior:"smooth"})}>
-      Enter System
-    </Button>
-  </div>
-
-  {/* VALUE ENGINE */}
-  <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto px-6">
-    <Card className="bg-gray-900 border-gray-800"><CardContent><h3>⚡ AI Automation</h3><p className="text-gray-400 text-sm">Replace work with AI systems.</p></CardContent></Card>
-    <Card className="bg-gray-900 border-gray-800"><CardContent><h3>💰 Monetization Engine</h3><p className="text-gray-400 text-sm">Affiliate + freelance + SaaS income.</p></CardContent></Card>
-    <Card className="bg-gray-900 border-gray-800"><CardContent><h3>🚀 Traffic Machine</h3><p className="text-gray-400 text-sm">TikTok + SEO + YouTube growth system.</p></CardContent></Card>
-  </div>
-
-  {/* TIKTOK FUNNEL SECTION */}
-  <div id="funnel" className="max-w-5xl mx-auto px-6 py-14">
-    <h2 className="text-2xl font-bold">🔥 Viral Traffic System</h2>
-    <div className="mt-4 bg-gray-900 p-5 rounded-xl border border-gray-800">
-      <p className="text-gray-300">Step 1: Post TikTok videos about AI tools</p>
-      <p className="text-gray-300">Step 2: Send viewers to this website</p>
-      <p className="text-gray-300">Step 3: Capture email + affiliate clicks</p>
-      <p className="text-gray-300">Step 4: Sell digital guides or services</p>
-    </div>
-  </div>
-
-  {/* TOOLS */}
-  <div className="max-w-6xl mx-auto px-6 py-10">
-    <h2 className="text-2xl font-bold">🔥 AI Tools (Income Layer)</h2>
-    <div className="grid md:grid-cols-2 gap-6 mt-4">
-      {tools.map((t,i)=>(
-        <Card key={i} className="bg-gray-900 border-gray-800">
-          <CardContent>
-            <h3 className="font-semibold">{t.name}</h3>
-            <p className="text-gray-400 text-sm mt-2">{t.desc}</p>
-            <Button className="mt-4 w-full" onClick={()=>open(t.link)}>Access</Button>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-
-  {/* FREELANCE SYSTEM */}
-  <div className="max-w-5xl mx-auto px-6 py-10">
-    <h2 className="text-2xl font-bold">💼 Freelance Money System</h2>
-    <div className="bg-gray-900 p-5 rounded-xl border border-gray-800 mt-4">
-      <p className="text-gray-300">Offer services like:</p>
-      <ul className="text-gray-400 text-sm mt-2 space-y-1">
-        <li>• AI CV creation ($20-$100)</li>
-        <li>• Website setup ($50-$200)</li>
-        <li>• AI automation setup ($100+)</li>
-        <li>• Cybersecurity beginner help (your advantage)</li>
-      </ul>
-    </div>
-  </div>
-
-  {/* BLOG SEO */}
-  <div className="max-w-6xl mx-auto px-6 py-10">
-    <h2 className="text-2xl font-bold">📈 SEO Blog System</h2>
-    <div className="space-y-4 mt-4">
-      {blogPosts.map((b,i)=>(
-        <div key={i} className="bg-gray-900 p-5 rounded-xl border border-gray-800">
-          <h3 className="font-semibold">{b.title}</h3>
-          <p className="text-gray-400 text-sm">{b.desc}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  {/* PRICING SAAS */}
-  <div className="max-w-6xl mx-auto px-6 py-14">
-    <h2 className="text-2xl font-bold">💰 SaaS Monetization Layer</h2>
-    <div className="grid md:grid-cols-3 gap-6 mt-4">
-      {pricing.map((p,i)=>(
-        <Card key={i} className="bg-gray-900 border-gray-800">
-          <CardContent>
-            <h3 className="font-bold">{p.name}</h3>
-            <p className="text-green-400 text-xl">{p.price}</p>
-            <ul className="text-gray-400 text-sm mt-2">
-              {p.features.map((f,j)=><li key={j}>• {f}</li>)}
-            </ul>
-            <Button className="mt-4 w-full">Select</Button>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-
-  {/* EMAIL + LEAD SYSTEM */}
-  <div className="text-center py-16 px-6">
-    <h2 className="text-2xl font-bold">🚀 Start Your Income System</h2>
-    <p className="text-gray-400 mt-2">Get AI tools, guides, and money systems free.</p>
-    <div className="mt-6 flex flex-col md:flex-row gap-2 justify-center">
-      <input className="p-3 rounded bg-gray-800 border border-gray-700 w-full md:w-2/3"
-        placeholder="Enter email"
-        value={email}
-        onChange={(e)=>setEmail(e.target.value)}
-      />
-      <Button className="w-full md:w-auto">Join</Button>
-    </div>
-  </div>
-
-  {/* FAQ */}
-  <div className="max-w-4xl mx-auto px-6 py-10">
-    <h2 className="text-2xl font-bold">❓ FAQ</h2>
-    <div className="space-y-4 mt-4">
-      {faq.map((f,i)=>(
-        <div key={i} className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-          <p className="font-semibold">{f.q}</p>
-          <p className="text-gray-400 text-sm">{f.a}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  {/* FOOTER */}
-  <div className="text-center text-gray-500 py-10 text-sm border-t border-gray-800">
-    AI Profit OS — complete AI + freelance + affiliate + SaaS system
-  </div>
-
-</div>
-
-); }
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Profit Hub</title>
+    <meta
+      name="description"
+      content="AI tools, freelancing systems, affiliate income, and digital business growth."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
