@@ -7,25 +7,37 @@ export default function App() {
   const [loading, setLoading] = useState(false);
 
   const generatePlan = async () => {
-    try {
-      setLoading(true);
-      setResult("Generating your plan...");
+  try {
+    setLoading(true);
+    setResult("Generating...");
 
-      const { data, error } = await supabase.functions.invoke("Reuben", {
-        body: { skill },
-      });
+    const { data, error } = await supabase.functions.invoke("Reuben", {
+      body: { skill },
+    });
 
-      if (error) {
-        setResult("Error: " + error.message);
-      } else {
-        setResult(data?.plan || JSON.stringify(data, null, 2));
-      }
-    } catch (err) {
-      setResult("Crash: " + err.message);
-    } finally {
-      setLoading(false);
+    if (error) {
+      setResult("Error: " + error.message);
+      return;
     }
-  };
+
+    const planText = data?.plan || JSON.stringify(data, null, 2);
+
+    setResult(planText);
+
+    // SAVE TO DATABASE
+    await supabase.from("plans").insert([
+      {
+        skill,
+        plan: planText,
+      },
+    ]);
+
+  } catch (err) {
+    setResult("Crash: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={{
