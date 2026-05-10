@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import { supabase } from "./lib/supabase";
 
 export default function App() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const tools = [
     {
@@ -22,14 +24,18 @@ export default function App() {
   const submitEmail = async () => {
     console.log("button clicked");
 
-    if (!email) {
-      alert("Please enter an email");
+    if (!email || !email.includes("@")) {
+      alert("Please enter a valid email");
       return;
     }
 
+    setLoading(true);
+
     const { error } = await supabase
-      .from("emails")
+      .from("leads")
       .insert([{ email }]);
+
+    setLoading(false);
 
     if (error) {
       console.log(error);
@@ -88,8 +94,12 @@ export default function App() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <button className="btn" onClick={submitEmail}>
-              Join Free
+            <button
+              className="btn"
+              onClick={submitEmail}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Join Free"}
             </button>
           </div>
         </div>
