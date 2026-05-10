@@ -1,4 +1,9 @@
+import { useState } from "react";
+import { supabase } from "./lib/supabase";
+
 export default function App() {
+  const [email, setEmail] = useState("");
+
   const tools = [
     {
       name: "AI Writing Engine",
@@ -13,6 +18,27 @@ export default function App() {
       desc: "Build ATS-optimized resumes.",
     },
   ];
+
+  const submitEmail = async () => {
+    console.log("button clicked");
+
+    if (!email) {
+      alert("Please enter an email");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("emails")
+      .insert([{ email }]);
+
+    if (error) {
+      console.log(error);
+      alert("Error saving email");
+    } else {
+      alert("Email saved!");
+      setEmail("");
+    }
+  };
 
   return (
     <div>
@@ -56,8 +82,15 @@ export default function App() {
           <h2>📧 Join The Newsletter</h2>
 
           <div className="card" style={{ marginTop: "20px" }}>
-            <input placeholder="Enter your email" />
-            <button className="btn">Join Free</button>
+            <input
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <button className="btn" onClick={submitEmail}>
+              Join Free
+            </button>
           </div>
         </div>
       </div>
