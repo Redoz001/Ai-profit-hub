@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 
-import Landing from "src/pages/Landing";
-import App from "src/pages/App.jsx";
+import Landing from "./pages/Landing";
+import App from "./pages/App";
 
 export default function Main() {
   return (
     <Routes>
-      <Route path="/" element={<Landing.jsx />} />
-      <Route path="/app" element={<App.jsx />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/app" element={<App />} />
     </Routes>
   );
 }
