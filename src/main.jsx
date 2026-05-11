@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import Landing from "src/pages/Landing.jsx";
+import Landing from "src/pages/Landing";
 import App from "src/pages/App.jsx";
 
 export default function Main() {
