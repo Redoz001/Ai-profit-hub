@@ -1,0 +1,280 @@
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
+
+export default function App() {
+  const [email, setEmail] = useState("");
+  const [user, setUser] = useState(null);
+
+  const [skill, setSkill] = useState("");
+  const [plan, setPlan] = useState("");
+  const [status, setStatus] = useState("");
+
+  const [isPremium, setIsPremium] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [usage, setUsage] = useState(0);
+
+  const [history, setHistory] = useState([]);
+  const [analytics, setAnalytics] = useState([]);
+
+  // 🔐 LOAD USER + ALL DATA
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase.auth.getUser();
+      const currentUser = data?.user || null;
+
+      setUser(currentUser);
+
+      if (!currentUser) return;
+
+      // PROFILE
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_premium, is_admin")
+        .eq("id", currentUser.id)
+        .single();
+
+      setIsPremium(profile?.is_premium || false);
+      setIsAdmin(profile?.is_admin || false);
+
+      // USAGE
+      const { data: usageData } = await supabase
+        .from("usage_limits")
+        .select("requests_used")
+        .eq("user_id", currentUser.id)
+        .single();
+
+      setUsage(usageData?.requests_used || 0);
+
+      // HISTORY
+      const { data: outputs } = await supabase
+        .from("ai_outputs")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
+
+      setHistory(outputs || []);
+
+      // ANALYTICS
+      const { data: logs } = await supabase
+        .from("analytics")
+        .select("*")
+        .eq("user_id", currentUser.id);
+
+      setAnalytics(logs || []);
+    };
+
+    load();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  // 📩 LOGIN
+  const login = async () => {
+    setStatus("Sending magic link...");
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      setStatus(error.message);
+      return;
+    }
+
+    setStatus("Check your email 📩");
+  };
+
+  // 🤖 GENERATE AI
+  const generate = async () => {
+    try {
+      setStatus("Checking access...");
+
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (!userData?.user) {
+        setStatus("Not logged in");
+        return;
+      }
+
+      const canUse = isPremium || usage < 10;
+
+      if (!canUse) {
+        setStatus("Limit reached 🔒 Upgrade required");
+        return;
+      }
+
+      setStatus("Generating...");
+
+      const { data, error } = await supabase.functions.invoke("Reuben", {
+        body: { skill },
+      });
+
+      if (error) {
+        setStatus(error.message);
+        return;
+      }
+
+      const result = data?.plan?.join("\n");
+      setPlan(result);
+
+      // SAVE OUTPUT
+      await supabase.from("ai_outputs").insert({
+        user_id: userData.user.id,
+        input: skill,
+        output: result,
+      });
+
+      // UPDATE USAGE
+      await supabase.from("usage_limits").upsert({
+        user_id: userData.user.id,
+        requests_used: usage + 1,
+      });
+
+      setUsage((prev) => prev + 1);
+
+      // LOG EVENT
+      await supabase.from("analytics").insert({
+        user_id: userData.user.id,
+        event: "generate_ai",
+        metadata: { skill, usage: usage + 1 },
+      });
+
+      setStatus("Generated + Saved + Logged ✅");
+
+      // REFRESH HISTORY
+      const { data: outputs } = await supabase
+        .from("ai_outputs")
+        .select("*")
+        .eq("user_id", userData.user.id)
+        .order("created_at", { ascending: false });
+
+      setHistory(outputs || []);
+    } catch (err) {
+      console.log(err);
+      setStatus("Unexpected error");
+    }
+  };
+
+  // 💳 UPGRADE
+  const upgrade = async () => {
+    setStatus("Redirecting...");
+
+    const { data, error } = await supabase.functions.invoke(
+      "create-checkout-session"
+    );
+
+    if (error) {
+      setStatus(error.message);
+      return;
+    }
+
+    window.location.href = data.url;
+  };
+
+  // 🔴 LOGIN SCREEN
+  if (!user) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>Reuben AI</h2>
+
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ padding: 10, width: 250 }}
+        />
+
+        <br /><br />
+
+        <button onClick={login}>Send Magic Link</button>
+
+        <p>{status}</p>
+      </div>
+    );
+  }
+
+  // 🟢 DASHBOARD
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Reuben AI</h1>
+
+      <p>User: {user.email}</p>
+      <p>
+        Plan: {isPremium ? "Premium 🟢" : "Free 🔒"} | Usage: {usage}/10
+      </p>
+
+      <input
+        placeholder="skill"
+        value={skill}
+        onChange={(e) => setSkill(e.target.value)}
+        style={{ padding: 10, width: 300 }}
+      />
+
+      <br /><br />
+
+      <button onClick={generate}>Generate</button>
+      <button onClick={upgrade} style={{ marginLeft: 10 }}>
+        Upgrade
+      </button>
+
+      <p>{status}</p>
+
+      {/* AI OUTPUT */}
+      <pre
+        style={{
+          marginTop: 20,
+          background: "#111",
+          color: "#00ff88",
+          padding: 15,
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {plan}
+      </pre>
+
+      {/* HISTORY */}
+      <div style={{ marginTop: 30 }}>
+        <h3>History</h3>
+
+        {history.map((item) => (
+          <div
+            key={item.id}
+            style={{ background: "#222", padding: 10, marginBottom: 10 }}
+          >
+            <strong>Input:</strong> {item.input}
+            <br />
+            <strong>Output:</strong>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{item.output}</pre>
+          </div>
+        ))}
+      </div>
+
+      {/* ANALYTICS */}
+      <div style={{ marginTop: 30 }}>
+        <h3>Activity</h3>
+
+        {analytics.map((a) => (
+          <p key={a.id}>Event: {a.event}</p>
+        ))}
+      </div>
+
+      {/* ADMIN */}
+      {isAdmin && (
+        <div style={{ marginTop: 30 }}>
+          <h2>Admin Panel</h2>
+          <p>Total Usage: {usage}</p>
+          <p>Premium Users Active System</p>
+        </div>
+      )}
+    </div>
+  );
+}
